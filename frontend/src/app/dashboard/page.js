@@ -12,6 +12,8 @@ import { getToken, getUser } from "@/lib/auth";
 import { CROP_IMAGES } from "@/lib/cropImages";
 import { useLang } from "@/lib/i18n";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+
 const RISK_STYLES = {
   Low: "bg-green-100 text-green-800 border-green-300",
   Medium: "bg-yellow-100 text-yellow-800 border-yellow-300",
@@ -93,9 +95,9 @@ export default function Overview() {
     const headers = { Authorization: `Bearer ${token}` };
 
     Promise.all([
-      fetch("http://127.0.0.1:5000/profiles", { headers }).then((r) => r.json()),
-      fetch("http://127.0.0.1:5000/history", { headers }).then((r) => r.json()),
-      fetch("http://127.0.0.1:5000/soil-ranges", { headers }).then((r) => r.json()),
+      fetch(`${API_URL}/profiles`, { headers }).then((r) => r.json()),
+      fetch(`${API_URL}/history`, { headers }).then((r) => r.json()),
+      fetch(`${API_URL}/soil-ranges`, { headers }).then((r) => r.json()),
     ])
       .then(([profilesData, historyData, rangesData]) => {
         const p = Array.isArray(profilesData) ? profilesData : [];
@@ -109,7 +111,7 @@ export default function Overview() {
         const regions = [...new Set(p.map((f) => f.region).filter(Boolean))];
         Promise.all(
           regions.map((region) =>
-            fetch(`http://127.0.0.1:5000/live-weather?region=${region}`, { headers })
+            fetch(`${API_URL}/live-weather?region=${region}`, { headers })
               .then((res) => res.json())
               .then((w) => [region, w])
               .catch(() => [region, null])

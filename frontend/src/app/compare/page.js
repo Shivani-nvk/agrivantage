@@ -8,6 +8,8 @@ import { getToken, getUser } from "@/lib/auth";
 import { downloadCSV } from "@/lib/csv";
 import { useLang } from "@/lib/i18n";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+
 const STATUS_STYLES = {
   healthy: "bg-green-100 text-green-800 border-green-300",
   "too low": "bg-orange-100 text-orange-800 border-orange-300",
@@ -56,7 +58,7 @@ export default function ComparePage() {
       return;
     }
 
-    fetch("http://127.0.0.1:5000/reports/compare-fields", {
+    fetch(`${API_URL}/reports/compare-fields`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())

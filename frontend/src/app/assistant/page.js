@@ -6,6 +6,8 @@ import Sidebar from "../components/Sidebar";
 import { getToken, getUser } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+
 const SUGGESTIONS = [
   "Why is my risk level what it is?",
   "What should I fix first in my soil?",
@@ -74,7 +76,7 @@ export default function AssistantPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://127.0.0.1:5000/chat", {
+      const res = await fetch(`${API_URL}/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

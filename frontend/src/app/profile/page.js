@@ -6,6 +6,8 @@ import Sidebar from "../components/Sidebar";
 import { getToken } from "@/lib/auth";
 import { useLang } from "@/lib/i18n";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+
 const CROP_TYPES = ["Wheat", "Corn", "Rice", "Soybean", "Barley"];
 const REGIONS = ["North", "South", "East", "West", "Central"];
 
@@ -35,7 +37,7 @@ export default function FarmProfilePage() {
   const { t } = useLang();
 
   function loadProfiles(token) {
-    fetch("http://127.0.0.1:5000/profiles", {
+    fetch(`${API_URL}/profiles`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -85,7 +87,7 @@ export default function FarmProfilePage() {
     if (!window.confirm(t("Delete this field? This cannot be undone."))) return;
     const token = getToken();
     try {
-      await fetch(`http://127.0.0.1:5000/profiles/${id}`, {
+      await fetch(`${API_URL}/profiles/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -111,8 +113,8 @@ export default function FarmProfilePage() {
 
     const token = getToken();
     const url = editingId
-      ? `http://127.0.0.1:5000/profiles/${editingId}`
-      : "http://127.0.0.1:5000/profiles";
+      ? `${API_URL}/profiles/${editingId}`
+      : `${API_URL}/profiles`;
     const method = editingId ? "PUT" : "POST";
 
     try {

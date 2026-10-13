@@ -9,7 +9,7 @@
 
 import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
 
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
 const CACHE_PREFIX = "tr_cache_v1_"; // bump v1 -> v2 to force everyone to re-fetch
 const BATCH_MAX = 60;
 

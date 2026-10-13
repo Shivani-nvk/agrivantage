@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+
 export default function Register() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState(null);
@@ -20,7 +22,7 @@ export default function Register() {
     setError(null);
 
     try {
-      const res = await fetch("http://127.0.0.1:5000/auth/register", {
+      const res = await fetch(`${API_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -40,7 +42,7 @@ export default function Register() {
     <div
       className="min-h-screen bg-cover bg-center relative"
       // PASTE YOUR IMAGE PATH HERE, e.g. /login_bg.jpg (place file in frontend/public/)
-      style={{ backgroundImage: "url('/login_bg.jpg')" }}
+      style={{ backgroundImage: "url('/login_bg.png')" }}
     >
       <div className="absolute top-8 left-8 sm:top-10 sm:left-16">
         <h1 className="font-heading text-3xl font-bold text-olive-700">

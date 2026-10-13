@@ -9,6 +9,8 @@ import Sidebar from "../components/Sidebar";
 import { CROP_IMAGES } from "@/lib/cropImages";
 import { useLang } from "@/lib/i18n";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+
 const CROP_TYPES = ["Wheat", "Corn", "Rice", "Soybean", "Barley"];
 const REGIONS = ["North", "South", "East", "West", "Central"];
 const SEASONS = ["Spring", "Summer", "Autumn"];
@@ -91,7 +93,7 @@ export default function Home() {
 
     // Load all saved fields, so the farmer can pick which one to apply -
     // they may farm more than one field in different regions/crops.
-    fetch("http://127.0.0.1:5000/profiles", {
+    fetch(`${API_URL}/profiles`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -128,7 +130,7 @@ export default function Home() {
     try {
       const token = localStorage.getItem("token");
       const res = await fetch(
-        `http://127.0.0.1:5000/live-weather?region=${form.region}`,
+        `${API_URL}/live-weather?region=${form.region}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const data = await res.json();
@@ -172,7 +174,7 @@ export default function Home() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://127.0.0.1:5000/predict", {
+      const res = await fetch(`${API_URL}/predict`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -8,6 +8,8 @@ import {
 import Sidebar from "../../components/Sidebar";
 import { getToken, getRole } from "@/lib/auth";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+
 const REGIONS = ["North", "South", "East", "West", "Central"];
 
 export default function AdminReportsPage() {
@@ -31,13 +33,13 @@ export default function AdminReportsPage() {
     }
 
     Promise.all([
-      fetch("http://127.0.0.1:5000/admin/seasonal-report", {
+      fetch(`${API_URL}/admin/seasonal-report`, {
         headers: { Authorization: `Bearer ${token}` },
       }).then((res) => res.json()),
-      fetch("http://127.0.0.1:5000/admin/stats", {
+      fetch(`${API_URL}/admin/stats`, {
         headers: { Authorization: `Bearer ${token}` },
       }).then((res) => res.json()),
-      fetch("http://127.0.0.1:5000/soil-ranges", {
+      fetch(`${API_URL}/soil-ranges`, {
         headers: { Authorization: `Bearer ${token}` },
       }).then((res) => res.json()),
     ])

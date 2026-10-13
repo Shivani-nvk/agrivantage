@@ -7,6 +7,8 @@ import { getToken } from "@/lib/auth";
 import { downloadCSV } from "@/lib/csv";
 import { useLang } from "@/lib/i18n";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+
 const RISK_STYLES = {
   Low: "bg-green-100 text-green-800 border-green-300",
   Medium: "bg-yellow-100 text-yellow-800 border-yellow-300",
@@ -182,7 +184,7 @@ export default function HistoryPage() {
       return;
     }
 
-    fetch("http://127.0.0.1:5000/history", {
+    fetch(`${API_URL}/history`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())

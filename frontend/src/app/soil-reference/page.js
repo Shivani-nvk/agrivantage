@@ -7,6 +7,8 @@ import { getToken } from "@/lib/auth";
 import { CROP_IMAGES } from "@/lib/cropImages";
 import { useLang } from "@/lib/i18n";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+
 const PARAM_LABELS = {
   soil_ph: "Soil pH",
   soil_moisture: "Moisture (%)",
@@ -29,7 +31,7 @@ export default function SoilReferencePage() {
       return;
     }
 
-    fetch("http://127.0.0.1:5000/soil-ranges", {
+    fetch(`${API_URL}/soil-ranges`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())

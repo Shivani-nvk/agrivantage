@@ -9,6 +9,8 @@ import {
 import Sidebar from "../components/Sidebar";
 import { getToken, getRole } from "@/lib/auth";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+
 const RISK_COLORS = {
   Low: "bg-green-500",
   Medium: "bg-yellow-500",
@@ -47,8 +49,8 @@ export default function AdminOverview() {
     const headers = { Authorization: `Bearer ${token}` };
 
     Promise.all([
-      fetch("http://127.0.0.1:5000/admin/stats", { headers }).then((r) => r.json()),
-      fetch("http://127.0.0.1:5000/admin/users", { headers }).then((r) => r.json()),
+      fetch(`${API_URL}/admin/stats`, { headers }).then((r) => r.json()),
+      fetch(`${API_URL}/admin/users`, { headers }).then((r) => r.json()),
     ])
       .then(([statsData, usersData]) => {
         setStats(statsData);
