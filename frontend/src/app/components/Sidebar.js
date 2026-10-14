@@ -32,6 +32,7 @@ const ADMIN_LINKS = [
 
 export default function Sidebar() {
   const [user, setUser] = useState(null);
+  const [open, setOpen] = useState(false); // phone menu
   const pathname = usePathname();
   const router = useRouter();
   const t = useT();
@@ -39,6 +40,26 @@ export default function Sidebar() {
   useEffect(() => {
     setUser(getUser());
   }, []);
+
+  // Close the phone menu whenever the page changes.
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  // While the phone menu is open: Escape closes it and the page behind it does not scroll.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
 
   function handleLogout() {
     logout();
@@ -48,8 +69,9 @@ export default function Sidebar() {
   const links = user?.role === "admin" ? ADMIN_LINKS : FARMER_LINKS;
   const roleLabel = user?.role ? t(user.role.charAt(0).toUpperCase() + user.role.slice(1)) : "";
 
-  return (
-    <aside className="w-64 shrink-0 min-h-screen bg-cream-50 border-r border-cream-200 flex flex-col print:hidden">
+  // The same content is used by the desktop sidebar and by the phone menu.
+  const content = (
+    <>
       <div className="px-6 py-7 flex items-center gap-3">
         <div className="h-10 w-10 rounded-full bg-olive-700 flex items-center justify-center text-lime-400 text-lg font-bold">
           A
@@ -69,6 +91,7 @@ export default function Sidebar() {
             <Link
               key={link.href}
               href={link.href}
+              onClick={() => setOpen(false)}
               className={`flex items-center gap-3 rounded-full pl-1.5 pr-4 py-1.5 text-base font-medium transition-all duration-200 ${
                 active
                   ? "bg-lime-400 text-charcoal-900 shadow-sm"
@@ -107,6 +130,48 @@ export default function Sidebar() {
           </button>
         </div>
       )}
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Computer / tablet (768px and wider): the sidebar exactly as before. */}
+      <aside className="hidden md:flex w-64 shrink-0 min-h-screen bg-cream-50 border-r border-cream-200 flex-col print:hidden">
+        {content}
+      </aside>
+
+      {/* Phone (narrower than 768px): a menu button in the top-left corner... */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label={t("Menu")}
+        aria-expanded={open}
+        className="md:hidden fixed left-3 top-1.5 z-50 flex h-9 w-9 items-center justify-center rounded-lg bg-olive-700 text-lg text-white shadow-md focus:outline-none focus:ring-2 focus:ring-lime-400 print:hidden"
+      >
+        ☰
+      </button>
+
+      {/* ...that opens the same menu as a panel sliding in from the left. */}
+      {open && (
+        <div className="md:hidden fixed inset-0 z-[60] print:hidden">
+          <style>{`@keyframes drawer-in{from{transform:translateX(-100%)}to{transform:none}}`}</style>
+          <div className="absolute inset-0 bg-black/50" onClick={() => setOpen(false)} />
+          <aside
+            className="relative flex h-full w-64 max-w-[85vw] flex-col overflow-y-auto bg-cream-50 shadow-2xl"
+            style={{ animation: "drawer-in 200ms ease-out" }}
+          >
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label={t("Close menu")}
+              className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-cream-100 text-sm text-charcoal-900/70 hover:bg-cream-200"
+            >
+              ✕
+            </button>
+            {content}
+          </aside>
+        </div>
+      )}
+    </>
   );
 }
