@@ -23,6 +23,7 @@ from planner import planner_bp, DEFAULT_PRICE_PER_TONNE, DEFAULT_COST_PER_HA
 from vision import vision_bp
 from notifications import notifications_bp, CropPlan, _plan_to_dict
 from admin import admin_bp
+from admin_roles import admin_roles_bp
 from extensions import limiter
 
 # ---------------------------------------------------------------
@@ -65,6 +66,7 @@ app.register_blueprint(planner_bp)
 app.register_blueprint(vision_bp)
 app.register_blueprint(notifications_bp)
 app.register_blueprint(admin_bp)
+app.register_blueprint(admin_roles_bp)
 
 
 @app.errorhandler(429)
