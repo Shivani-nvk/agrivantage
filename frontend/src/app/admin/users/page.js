@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "../../components/Sidebar";
-import { getToken, getRole } from "@/lib/auth";
+import { getToken, getRole, getUser } from "@/lib/auth";
 import { useT } from "@/lib/i18n";
+import { toast } from "@/lib/toast";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
 
@@ -29,6 +30,8 @@ export default function AdminUsersPage() {
   const [roleFilter, setRoleFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [changingId, setChangingId] = useState(null);
+  const myId = getUser()?.id;
 
   useEffect(() => {
     const token = getToken();
@@ -58,6 +61,37 @@ export default function AdminUsersPage() {
 
   function openUser(id) {
     router.push(`/admin/users/${id}`);
+  }
+
+  // Promote a farmer to admin, or demote an admin to farmer.
+  async function changeRole(u, e) {
+    e.stopPropagation(); // don't open the user's page
+    const newRole = u.role === "admin" ? "farmer" : "admin";
+    const question =
+      newRole === "admin"
+        ? t("Make {name} an admin? They will be able to see all users and data.", { name: u.name })
+        : t("Make {name} a farmer? They will lose admin access.", { name: u.name });
+    if (!window.confirm(question)) return;
+
+    setChangingId(u.id);
+    try {
+      const res = await fetch(`${API_URL}/admin/users/${u.id}/role`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ role: newRole }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || t("Something went wrong"));
+      setUsers((prev) => prev.map((x) => (x.id === u.id ? { ...x, role: newRole } : x)));
+      toast.success(
+        t("{name} is now {role}", { name: u.name, role: t(newRole === "admin" ? "an admin" : "a farmer") })
+      );
+      toast.info(t("The change applies the next time they log in."));
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setChangingId(null);
+    }
   }
 
   return (
@@ -124,7 +158,12 @@ export default function AdminUsersPage() {
                       }`}
                     >
                       <td className="px-5 py-3.5 text-charcoal-900/60">{u.id}</td>
-                      <td className="px-5 py-3.5 font-medium text-charcoal-900">{u.name}</td>
+                      <td className="px-5 py-3.5 font-medium text-charcoal-900">
+                        {u.name}
+                        {u.id === myId && (
+                          <span className="ml-2 text-xs font-normal text-charcoal-900/40">({t("you")})</span>
+                        )}
+                      </td>
                       <td className="px-5 py-3.5 text-charcoal-900/80">{u.email}</td>
                       <td className="px-5 py-3.5">
                         <span
@@ -140,8 +179,23 @@ export default function AdminUsersPage() {
                       <td className="px-5 py-3.5 text-charcoal-900/60 whitespace-nowrap">
                         {formatDate(u.last_active) || t("Never")}
                       </td>
-                      <td className="px-5 py-3.5 text-right text-olive-700 font-medium whitespace-nowrap">
-                        {t("View")} →
+                      <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                        {u.id !== myId && (
+                          <button
+                            type="button"
+                            disabled={changingId === u.id}
+                            onClick={(e) => changeRole(u, e)}
+                            onKeyDown={(e) => e.stopPropagation()}
+                            className={`mr-3 rounded-full border px-3 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
+                              u.role === "admin"
+                                ? "border-red-300 bg-red-50 text-red-700 hover:bg-red-100"
+                                : "border-lime-500 bg-lime-300/30 text-olive-800 hover:bg-lime-300/60"
+                            }`}
+                          >
+                            {u.role === "admin" ? t("Make farmer") : t("Make admin")}
+                          </button>
+                        )}
+                        <span className="text-olive-700 font-medium">{t("View")} →</span>
                       </td>
                     </tr>
                   ))}
